@@ -1,0 +1,32 @@
+#!/bin/bash
+
+source config
+
+# Clear temporary data
+: > "$OUT_DOMAINS.temp"
+
+# Fetch host-format lists, remove first column
+while read list; do
+	if [ -z "$list" ]; then
+		continue
+	fi
+	printf "Fetching host list %s\n" "$list"
+	curl "$list" | grep -v "^#" | tr '[:blank:]' ' ' | cut -d " " -f 2 >> "$OUT_DOMAINS.temp"
+done < "$SRC_HOSTS"
+
+# Fetch domain-format lists
+while read list; do
+	if [ -z "$list" ]; then
+		continue
+	fi
+	printf "Fetching domain list %s\n" "$list"
+	curl "$list" | grep -v "^#" >> "$OUT_DOMAINS.temp"
+done < "$SRC_DOMAIN"
+
+# Sort and weed out duplicates
+sort "$OUT_DOMAINS.temp" | tr -d '\r' | sed -e 's/^[[:blank:]]*//' -e 's/[[:blank:]]*$//' | uniq > "$OUT_DOMAINS"
+rm "$OUT_DOMAINS.temp"
+
+# Prepend new ad server
+sed -e "s/^/${ADSERVER} /" "$OUT_DOMAINS" > "$OUT_HOSTS"
+

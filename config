@@ -1,0 +1,5 @@
+SRC_HOSTS="adlist-sources.host"
+SRC_DOMAIN="adlist-sources.domain"
+OUT_DOMAINS="ad.domains"
+ADSERVER="127.0.0.1"
+OUT_HOSTS="ad.hosts"
